@@ -8,6 +8,7 @@ import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import { getItem, postItem, updateItems, deleteItem } from "./backend/api/items";
+import { signOut } from "aws-amplify/auth"
 
 Amplify.configure(outputs);
 const existingConfig = Amplify.getConfig();
@@ -60,6 +61,10 @@ export default function App() {
     client.models.Todo.delete({ id })
   }
 
+  async function handleSignOut() {
+    await signOut({global:true})
+  }
+
   return (
     <Authenticator>
       {({ signOut, user }) => (
@@ -79,6 +84,7 @@ export default function App() {
         <button onClick={updateItems}>Update Data via API</button>
         <br/><br/>
         <button onClick={deleteItem}>Delete Data via API</button>
+        <button onClick={handleSignOut}>Signout</button>
       </div>
     </main>
     )}
