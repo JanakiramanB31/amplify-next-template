@@ -7,13 +7,35 @@ import "./../app/app.css";
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
+import { getItem, postItem, updateItems, deleteItem } from "./backend/api/items";
 
 Amplify.configure(outputs);
+const existingConfig = Amplify.getConfig();
+Amplify.configure({
+  ...existingConfig,
+  API: {
+    ...existingConfig.API,
+    REST: outputs.custom.API,
+  },
+});
 
 const client = generateClient<Schema>();
 
 export default function App() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+  const callAPI = async () => {
+    try {
+      const res = await fetch(`https://7ms1qma6b0.execute-api.ap-southeast-1.amazonaws.com/test-express/d`);
+      const data = await res.json();
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  
+
+
 
   function listTodos() {
     client.models.Todo.observeQuery().subscribe({
@@ -31,6 +53,8 @@ export default function App() {
     });
   }
 
+  
+
     
   function deleteTodo(id: string) {
     client.models.Todo.delete({ id })
@@ -40,7 +64,7 @@ export default function App() {
     <Authenticator>
       {({ signOut, user }) => (
     <main>
-      <h1>My todos</h1>
+      <h1>{user?.signInDetails?.loginId}'s todos</h1>
       <button onClick={createTodo}>+ new</button>
       <ul>
         {todos.map((todo) => (
@@ -48,11 +72,13 @@ export default function App() {
         ))}
       </ul>
       <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/">
-          Review next steps of this tutorial.
-        </a>
+        <button onClick={getItem}>Make Get API call</button>
+        <br/> <br/>
+        <button onClick={postItem}>Post Data to API</button>
+        <br/><br/>
+        <button onClick={updateItems}>Update Data via API</button>
+        <br/><br/>
+        <button onClick={deleteItem}>Delete Data via API</button>
       </div>
     </main>
     )}
